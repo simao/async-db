@@ -1,0 +1,17 @@
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%highlight(%.-1level)|%d{HH:mm:ss.SSS}|%logger{36}|%message%n%exception</pattern>
+        </encoder>
+    </appender>
+
+    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+        <resetJUL>true</resetJUL>
+    </contextListener>
+
+    <logger name="org.postgresql" level="info" />
+
+    <root level="${rootLevel:-info}">
+        <appender-ref ref="STDOUT" />
+    </root>
+</configuration>
