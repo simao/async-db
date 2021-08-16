@@ -16,7 +16,7 @@ The thread pool is a simpler version of the thread pool used by [slick](https://
 
 - One thread will be created per database connection, so that jdbc blocking calls do not affect other connections.
 
-[hikari-cpi](https://github.com/brettwooldridge/HikariCP) is used to manage the connection pool.
+[Hikari-CP](https://github.com/brettwooldridge/HikariCP) is used to manage the connection pool.
 
 ## How to use
 
