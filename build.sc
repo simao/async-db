@@ -33,7 +33,7 @@ class AnormAsyncModule(val crossScalaVersion: String) extends CrossScalaModule w
       ivy"org.postgresql:postgresql::42.2.22",
       ivy"ch.qos.logback:logback-classic::1.2.3",
       ivy"org.scalameta::munit::0.7.27",
-      ivy"org.slf4j:jul-to-slf4j:1.7.31",
+      ivy"org.slf4j:jul-to-slf4j:1.7.32",
     )
   }
 
