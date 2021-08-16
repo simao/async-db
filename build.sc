@@ -10,7 +10,7 @@ class AnormAsyncModule(val crossScalaVersion: String) extends CrossScalaModule w
     ivy"com.zaxxer:HikariCP::4.0.3",
     ivy"org.playframework.anorm::anorm:2.6.10",
     ivy"com.typesafe:config::1.4.1",
-    ivy"io.dropwizard.metrics:metrics-core:4.2.0",
+    ivy"io.dropwizard.metrics:metrics-core:4.2.3",
   )
 
   def pomSettings = PomSettings(
@@ -30,10 +30,10 @@ class AnormAsyncModule(val crossScalaVersion: String) extends CrossScalaModule w
 
   object test extends Tests with TestModule.Munit {
     override def ivyDeps = Agg(
-      ivy"org.postgresql:postgresql::42.2.22",
+      ivy"org.postgresql:postgresql::42.2.23",
       ivy"ch.qos.logback:logback-classic::1.2.3",
-      ivy"org.scalameta::munit::0.7.27",
-      ivy"org.slf4j:jul-to-slf4j:1.7.32",
+      ivy"org.scalameta::munit::0.7.28",
+      ivy"org.slf4j:jul-to-slf4j:1.7.31",
     )
   }
 
