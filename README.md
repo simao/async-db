@@ -1,6 +1,6 @@
 # anorm-async - non blocking API for anorm
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/eu.0io/anorm-async_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/eu.0io/anorm-async_2.13) [![Continuous integration](https://github.com/simao/anorm-async/actions/workflows/ci.yml/badge.svg)]
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/eu.0io/anorm-async_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/eu.0io/anorm-async_2.13) [![Continuous integration](https://github.com/simao/anorm-async/actions/workflows/ci.yml/badge.svg)]()
 
 [anorm](https://github.com/playframework/anorm) is a simple data access layer written in scala. Is is simple, but complete. However, anorm uses JDBC, which means all IO methods block the current thread and therefore developers need to be careful when using anorm in an asynchronous application.
 
