@@ -37,7 +37,7 @@ class AnormAsyncModule(val crossScalaVersion: String) extends CrossScalaModule w
     )
   }
 
-  override def publishVersion = "0.0.1-SNAPSHOT"
+  override def publishVersion = "0.0.2-SNAPSHOT"
 
   override def scalacOptions = Seq("-Yrangepos")
 }
