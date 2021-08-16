@@ -25,7 +25,7 @@ Get `<version>` from the maven central badge above.
 ### With sbt
 
 ```
-libraryDependencies += ivy"eu.0io::anorm-async:<version>"
+libraryDependencies += "eu.0io::anorm-async:<version>"
 ```
 
 ### With mill
