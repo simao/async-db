@@ -7,7 +7,7 @@ object `anorm-async` extends mill.Cross[AnormAsyncModule]("2.12.4", "2.13.6")
 class AnormAsyncModule(val crossScalaVersion: String) extends CrossScalaModule with PublishModule {
 
   override def ivyDeps = Agg(
-    ivy"com.zaxxer:HikariCP::5.0.0",
+    ivy"com.zaxxer:HikariCP::4.0.3",
     ivy"org.playframework.anorm::anorm:2.6.10",
     ivy"com.typesafe:config::1.4.1",
     ivy"io.dropwizard.metrics:metrics-core:4.2.3",
