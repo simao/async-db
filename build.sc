@@ -32,7 +32,7 @@ class AnormAsyncModule(val crossScalaVersion: String) extends CrossScalaModule w
     override def ivyDeps = Agg(
       ivy"org.postgresql:postgresql::42.2.23",
       ivy"ch.qos.logback:logback-classic::1.2.5",
-      ivy"org.scalameta::munit::0.7.28",
+      ivy"org.scalameta::munit::0.7.29",
       ivy"org.slf4j:jul-to-slf4j:1.7.32",
     )
   }
