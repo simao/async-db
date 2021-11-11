@@ -31,7 +31,7 @@ class AnormAsyncModule(val crossScalaVersion: String) extends CrossScalaModule w
   object test extends Tests with TestModule.Munit {
     override def ivyDeps = Agg(
       ivy"org.postgresql:postgresql::42.3.1",
-      ivy"ch.qos.logback:logback-classic::1.2.6",
+      ivy"ch.qos.logback:logback-classic::1.2.7",
       ivy"org.scalameta::munit::0.7.29",
       ivy"org.slf4j:jul-to-slf4j:1.7.32",
     )
