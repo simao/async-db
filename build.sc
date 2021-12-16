@@ -10,7 +10,7 @@ class AnormAsyncModule(val crossScalaVersion: String) extends CrossScalaModule w
     ivy"com.zaxxer:HikariCP::4.0.3",
     ivy"org.playframework.anorm::anorm:2.6.10",
     ivy"com.typesafe:config::1.4.1",
-    ivy"io.dropwizard.metrics:metrics-core:4.2.5",
+    ivy"io.dropwizard.metrics:metrics-core:4.2.6",
   )
 
   def pomSettings = PomSettings(
