@@ -1,13 +1,14 @@
 package eu._0io.anorm_async
 
-import com.codahale.metrics.{Gauge, MetricRegistry}
+import com.codahale.metrics.{Counter, Gauge, MetricRegistry}
 import com.typesafe.config.Config
 import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
 import org.slf4j.LoggerFactory
 
+import java.io.Closeable
 import java.sql.Connection
 import java.util.Properties
-import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.{AtomicInteger, AtomicReference}
 import java.util.concurrent._
 import javax.sql.DataSource
 import scala.collection.JavaConverters._
@@ -30,8 +31,8 @@ object Database {
     hikariCpProperties.setProperty("password", config.getString("password"))
     hikariCpProperties.setProperty("jdbcUrl", config.getString("jdbcurl"))
 
-    config.getObject("databasePool.properties").asScala.foreach { case (path, value) =>
-      hikariCpProperties.setProperty(path, value.render())
+    config.getObject("db-pool.properties").asScala.foreach { case (path, value) =>
+      hikariCpProperties.setProperty(path, value.unwrapped().toString)
     }
 
     val hconfig = new HikariConfig(hikariCpProperties)
@@ -51,17 +52,19 @@ object Database {
   def fromConfig(config: Config, metricRegistry: Option[MetricRegistry] = None): Database = {
     val properties = new Properties()
 
-    config.getObject("properties").asScala.foreach { case (path, value) =>
-      properties.setProperty(path, value.render())
+    config.getObject("jdbc-properties").asScala.foreach { case (path, value) =>
+      properties.setProperty(path, value.unwrapped().toString)
     }
 
-    val dbConfig = DatabaseConfig("default-pool-name", 0, config.getInt("threadPool.queueSize"), properties, metricRegistry)
+    val dbConfig = DatabaseConfig("default-pool-name", 0, config.getInt("thread-pool.queueSize"), properties, metricRegistry)
 
     fromHikariPool(config, dbConfig, metricRegistry)
   }
 }
 
-class Database(ds: DataSource, databaseConfig: DatabaseConfig) {
+class Database(ds: DataSource, val databaseConfig: DatabaseConfig) {
+
+  private lazy val log = LoggerFactory.getLogger(this.getClass)
 
   private val daemonThreadFactory = new ThreadFactory {
     private val threadNumber = new AtomicInteger(-1)
@@ -71,6 +74,25 @@ class Database(ds: DataSource, databaseConfig: DatabaseConfig) {
       if(!t.isDaemon)
         t.setDaemon(true)
       t
+    }
+  }
+
+  private object PoolStatus extends Enumeration {
+    val RUNNING, SHUTTING_DOWN = Value
+  }
+
+  private val status = new AtomicReference[PoolStatus.Value](PoolStatus.RUNNING)
+
+  def close(): Unit = {
+    if(status.compareAndSet(PoolStatus.RUNNING, PoolStatus.SHUTTING_DOWN)) {
+      ioPool.shutdownNow()
+
+      if(!ioPool.awaitTermination(30, TimeUnit.SECONDS))
+        log.warn("Could not wait fora ioPool shutdown (not yet shutdown after 30 seconds)")
+
+      //noinspection TypeCheckCanBeMatch
+      if(ds.isInstanceOf[Closeable])
+        ds.asInstanceOf[Closeable].close()
     }
   }
 
@@ -102,7 +124,7 @@ class Database(ds: DataSource, databaseConfig: DatabaseConfig) {
     })
   }
 
-  lazy val rejectedExecutionCounter = databaseConfig.metricRegistry.map { mr =>
+  lazy val rejectedExecutionCounter: Option[Counter] = databaseConfig.metricRegistry.map { mr =>
     mr.counter(s"anorm-async.db.${databaseConfig.poolName}.io-thread-pool.rejected-count")
   }
 
@@ -111,15 +133,19 @@ class Database(ds: DataSource, databaseConfig: DatabaseConfig) {
   private def submitToPool[T](fn: Promise[T] => Unit): Promise[T] = {
     val promise = Promise[T]()
 
-    try
-      ioPool.execute { () => fn.apply(promise) }
-    catch {
-      case ex: RejectedExecutionException =>
-        rejectedExecutionCounter.foreach(_.inc())
-        promise.failure(ex)
-    }
+    if(status.get() != PoolStatus.RUNNING)
+      promise.failure(new IllegalArgumentException("Pool is shutting down, not accepting more jobs"))
+    else {
+      try
+        ioPool.execute { () => fn.apply(promise) }
+      catch {
+        case ex: RejectedExecutionException =>
+          rejectedExecutionCounter.foreach(_.inc())
+          promise.failure(ex)
+      }
 
-    promise
+      promise
+    }
   }
 
   def withTransaction[T](fn: Connection => T): Future[T] =
