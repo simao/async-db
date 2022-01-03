@@ -48,15 +48,15 @@ your-app {
   database {
     jdbcurl = "jdbc:postgresql://host:port/schema"
 
-    properties = {
+    jdbc-properties = {
       reWriteBatchedInserts = true # You can put any property specific to your JDBC connector here
     }
 
-    threadPool = {
+    thread-pool = {
       queueSize = 1000
     }
 
-    databasePool = {
+    db-pool = {
       properties = { // Hikari CP specific pool configurations, see https://github.com/brettwooldridge/HikariCP#gear-configuration-knobs-baby
         registerMbeans = true
         maximumPoolSize = 10
