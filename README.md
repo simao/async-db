@@ -1,10 +1,10 @@
-# anorm-async - non blocking API for anorm
+# async-db - non blocking API for jdbc database connections
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/eu.0io/anorm-async_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/eu.0io/anorm-async_2.13) [![Continuous integration](https://github.com/simao/anorm-async/actions/workflows/ci.yml/badge.svg)]()
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/eu.0io/async-db_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/eu.0io/async-db_2.13) [![Continuous integration](https://github.com/simao/async-db/actions/workflows/ci.yml/badge.svg)]()
 
-[anorm](https://github.com/playframework/anorm) is a simple data access layer written in scala. Is is simple, but complete. However, anorm uses JDBC, which means all IO methods block the current thread and therefore developers need to be careful when using anorm in an asynchronous application.
+JDBC is commonly used in Scala to access databases, however, JDBC uses blocking IO whenever it access the database, blocking the current thread. therefore developers need to be careful when using JDBC in an asynchronous application. 
 
-anorm-async is a thin wrapper around anorm that includes a preconfigured thread pool and provides a non blocking API, returning a `Future` to connect to a database using anorm.
+async-db is a thin wrapper around JDBC that includes a preconfigured thread pool and provides a non blocking API, returning a `Future` to connect to a database.
 
 The thread pool is a simpler version of the thread pool used by [slick](https://github.com/slick/slick/):
 
@@ -25,13 +25,13 @@ Get `<version>` from the maven central badge above.
 ### With sbt
 
 ```
-libraryDependencies += "eu.0io" %% "anorm-async" % "<version>"
+libraryDependencies += "eu.0io" %% "async-db" % "<version>"
 ```
 
 ### With mill
 
 ```
-ivy"eu.0io::anorm-async:<version>"
+ivy"eu.0io::async-db:<version>"
 ```
 
 You'll also need to add the JDBC drivers for the database you need to connect to.
@@ -73,7 +73,7 @@ Create a `Database`:
 
 ```scala
 import com.typesafe.config.ConfigFactory
-import eu._0io.anorm_async.Database
+import eu._0io.async_db.Database
 
 val config = ConfigFactory.load().getConfig("your-app.database")
 implicit lazy val db = Database.fromConfig(config)
@@ -82,26 +82,26 @@ implicit lazy val db = Database.fromConfig(config)
 You can then share this `db` instance on your application and execute SQL queries:
 
 ```scala
-val id  = db.withConnection { implicit c =>
-  SQL("insert into anorm_async_ids (seq) values('hello') RETURNING id").as(scalar[Long].single)
+val id  = db.withConnection { c: Connection =>
+  // Your jdbc code to use `Connection`
 }
 
-// id has type Future[Long]
+// id has type Future[_]
 ```
 
 Run transactions with `withTransaction`:
 
 ```scala
-val id  = db.withTransaction { implicit c =>
-  SQL("insert into anorm_async_ids (seq) values('hello') RETURNING id").as(scalar[Long].single)
+val id  = db.withTransaction { c =>
+  // Your jdbc code to use `Connection`
 }
 ```
 
-The transactions will be commited if the function passed as argument succeeds or rollbacked if an exceptions is thrown. For more finer control of the transaction behavior, you can use `withConnection` directly.
+The transactions will be committed if the function passed as argument succeeds or is rollbacked if an exceptions is thrown. For finer control of the transaction behavior, you can use `withConnection` directly.
 
 ## Monitoring
 
-Both `anorm-async` and `hikari-cp` will publish metrics using [dropwizard metrics](https://metrics.dropwizard.io/4.2.0/). This can be enabled by passing a metrics collector when initializing a `Database`:
+Both `async-db` and `hikari-cp` will publish metrics using [dropwizard metrics](https://metrics.dropwizard.io/4.2.0/). This can be enabled by passing a metrics collector when initializing a `Database`:
 
 ```scala
 val metricRegistry = new MetricRegistry
@@ -131,15 +131,15 @@ HikariPool-1.pool.PendingConnections
              value = 0
 HikariPool-1.pool.TotalConnections
              value = 10
-anorm-async.db.HikariPool-1.io-thread-pool.active-count
+async-db.db.HikariPool-1.io-thread-pool.active-count
              value = 0
-anorm-async.db.HikariPool-1.io-thread-pool.core-pool-size
+async-db.db.HikariPool-1.io-thread-pool.core-pool-size
              value = 10
-anorm-async.db.HikariPool-1.io-thread-pool.pool-size
+async-db.db.HikariPool-1.io-thread-pool.pool-size
              value = 8
-anorm-async.db.HikariPool-1.io-thread-pool.queue-size
+async-db.db.HikariPool-1.io-thread-pool.queue-size
              value = 0
-anorm-async.db.HikariPool-1.io-thread-pool.task-count
+async-db.db.HikariPool-1.io-thread-pool.task-count
              value = 8
 
 -- Histograms ------------------------------------------------------------------
@@ -202,9 +202,9 @@ You will need [mill](https://com-lihaoyi.github.io/mill/mill/Intro_to_Mill.html)
 To run tests you'll need a postgres instance:
 
 ```
-docker run --name anorm-async -p 5432:5432 -e POSTGRES_PASSWORD=root -e POSTGRES_USER=anorm-async -d postgres:13.3-alpine
+docker run --name async-db -p 5432:5432 -e POSTGRES_PASSWORD=root -e POSTGRES_USER=async-db -d postgres:13.3-alpine
 ```
 
 Then run tests:
 
-`mill anorm-async[_].test`
+`mill async-db[_].test`

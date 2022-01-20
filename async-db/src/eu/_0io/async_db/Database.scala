@@ -1,4 +1,4 @@
-package eu._0io.anorm_async
+package eu._0io.async_db
 
 import com.codahale.metrics.{Counter, Gauge, MetricRegistry}
 import com.typesafe.config.Config
@@ -70,7 +70,7 @@ class Database(ds: DataSource, val databaseConfig: DatabaseConfig) {
     private val threadNumber = new AtomicInteger(-1)
 
     override def newThread(r: Runnable): Thread = {
-      val t = new Thread(r, s"anorm-async-db-pool-${threadNumber.incrementAndGet()}")
+      val t = new Thread(r, s"async-db-db-pool-${threadNumber.incrementAndGet()}")
       if(!t.isDaemon)
         t.setDaemon(true)
       t
@@ -103,29 +103,29 @@ class Database(ds: DataSource, val databaseConfig: DatabaseConfig) {
     daemonThreadFactory)
 
   databaseConfig.metricRegistry.foreach { mr =>
-    mr.register(s"anorm-async.db.${databaseConfig.poolName}.io-thread-pool.active-count", new Gauge[Int] {
+    mr.register(s"async-db.db.${databaseConfig.poolName}.io-thread-pool.active-count", new Gauge[Int] {
       override def getValue: Int = ioPoolExecutor.getActiveCount
     })
 
-    mr.register(s"anorm-async.db.${databaseConfig.poolName}.io-thread-pool.core-pool-size", new Gauge[Int] {
+    mr.register(s"async-db.db.${databaseConfig.poolName}.io-thread-pool.core-pool-size", new Gauge[Int] {
       override def getValue: Int = ioPoolExecutor.getCorePoolSize
     })
 
-    mr.register(s"anorm-async.db.${databaseConfig.poolName}.io-thread-pool.task-count", new Gauge[Long] {
+    mr.register(s"async-db.db.${databaseConfig.poolName}.io-thread-pool.task-count", new Gauge[Long] {
       override def getValue: Long = ioPoolExecutor.getTaskCount
     })
 
-    mr.register(s"anorm-async.db.${databaseConfig.poolName}.io-thread-pool.queue-size", new Gauge[Int] {
+    mr.register(s"async-db.db.${databaseConfig.poolName}.io-thread-pool.queue-size", new Gauge[Int] {
       override def getValue: Int = ioPoolExecutor.getQueue.size()
     })
 
-    mr.register(s"anorm-async.db.${databaseConfig.poolName}.io-thread-pool.pool-size", new Gauge[Int] {
+    mr.register(s"async-db.db.${databaseConfig.poolName}.io-thread-pool.pool-size", new Gauge[Int] {
       override def getValue: Int = ioPoolExecutor.getPoolSize
     })
   }
 
   lazy val rejectedExecutionCounter: Option[Counter] = databaseConfig.metricRegistry.map { mr =>
-    mr.counter(s"anorm-async.db.${databaseConfig.poolName}.io-thread-pool.rejected-count")
+    mr.counter(s"async-db.db.${databaseConfig.poolName}.io-thread-pool.rejected-count")
   }
 
   private val ioPool = ExecutionContext.fromExecutorService(ioPoolExecutor)

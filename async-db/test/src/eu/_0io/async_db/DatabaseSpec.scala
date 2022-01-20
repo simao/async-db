@@ -1,4 +1,4 @@
-package eu._0io.anorm_async
+package eu._0io.async_db
 
 import anorm.SqlParser._
 import anorm._
@@ -19,7 +19,7 @@ object MunitFutureValue {
 class DatabaseSpec extends munit.FunSuite {
   import MunitFutureValue._
 
-  lazy val config = ConfigFactory.load().getConfig("anorm-async.database")
+  lazy val config = ConfigFactory.load().getConfig("async-db.database")
 
   implicit lazy val db = Database.fromConfig(config)
 
@@ -27,7 +27,7 @@ class DatabaseSpec extends munit.FunSuite {
 
   test("can run sync statements") {
     val id = db.withConnectionSync { implicit c =>
-      SQL("insert into anorm_async_ids (seq) values('hello') RETURNING id").as(scalar[Long].single)
+      SQL("insert into async_db_ids (seq) values('hello') RETURNING id").as(scalar[Long].single)
     }
 
     assert(clue(id) > 0, "id bigger greater than 0")
@@ -35,11 +35,11 @@ class DatabaseSpec extends munit.FunSuite {
 
   test("can run async statements") {
     val idF  = db.withConnection { implicit c =>
-      SQL("insert into anorm_async_ids (seq) values('hello') RETURNING id").as(scalar[Long].single)
+      SQL("insert into async_db_ids (seq) values('hello') RETURNING id").as(scalar[Long].single)
     }
 
     val count  = db.withConnection { implicit c =>
-      SQL("select count(id) from anorm_async_ids where id = {id}").on("id" -> idF.futureValue).as(scalar[Long].single)
+      SQL("select count(id) from async_db_ids where id = {id}").on("id" -> idF.futureValue).as(scalar[Long].single)
     }
 
     assert(clue(idF.futureValue) > 0, "id bigger greater than 0")
@@ -52,14 +52,14 @@ class DatabaseSpec extends munit.FunSuite {
     var id = 0L
 
     val idF  = db.withTransaction { implicit c =>
-      id = SQL("insert into anorm_async_ids (seq) values('hello') RETURNING id").as(scalar[Long].single)
+      id = SQL("insert into async_db_ids (seq) values('hello') RETURNING id").as(scalar[Long].single)
       throw ex
     }
 
     assertEquals(idF.failed.futureValue, ex, "must return expected error")
 
     val count = db.withConnection { implicit c =>
-      SQL("select count(id) from anorm_async_ids where id = {id}").on("id" -> id).as(scalar[Long].single)
+      SQL("select count(id) from async_db_ids where id = {id}").on("id" -> id).as(scalar[Long].single)
     }
 
     assertEquals(count.futureValue, 0L, "row should not be inserted")
@@ -67,19 +67,19 @@ class DatabaseSpec extends munit.FunSuite {
 
   test("transaction is committed if no error occurs") {
     val idF  = db.withTransaction { implicit c =>
-      SQL("insert into anorm_async_ids (seq) values('hello') RETURNING id").as(scalar[Long].single)
+      SQL("insert into async_db_ids (seq) values('hello') RETURNING id").as(scalar[Long].single)
     }
 
     val count  = db.withConnection { implicit c =>
-      SQL("select count(id) from anorm_async_ids where id = {id}").on("id" -> idF.futureValue).as(scalar[Long].single)
+      SQL("select count(id) from async_db_ids where id = {id}").on("id" -> idF.futureValue).as(scalar[Long].single)
     }
 
     assertEquals(count.futureValue, 1L, "row should be inserted")
   }
 
   val schema ="""
-      DROP TABLE IF EXISTS anorm_async_ids;
-      create table anorm_async_ids (id bigserial, seq varchar(100));
+      DROP TABLE IF EXISTS async_db_ids;
+      create table async_db_ids (id bigserial, seq varchar(100));
       """
 
   override def beforeAll(): Unit = {
@@ -89,7 +89,7 @@ class DatabaseSpec extends munit.FunSuite {
   }
 
   override def afterAll(): Unit = {
-    val sql = SQL("truncate anorm_async_ids")
+    val sql = SQL("truncate async_db_ids")
     db.withConnection(implicit c => sql.execute()).futureValue
   }
 }
