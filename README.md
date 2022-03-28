@@ -1,6 +1,6 @@
 # async-db - non blocking API for jdbc database connections
 
-[![Maven Central](https://img.shields.io/maven-central/v/eu.0io/async-db_2.13)](https://search.maven.org/artifact/eu.0io/async-db_2.13/0.0.1/jar) [![Continuous integration](https://github.com/simao/async-db/actions/workflows/ci.yml/badge.svg)]()
+[![Maven Central](https://img.shields.io/maven-central/v/eu.0io/async-db_2.13)](https://mvnrepository.com/artifact/eu.0io/async-db) [![Continuous integration](https://github.com/simao/async-db/actions/workflows/ci.yml/badge.svg)]()
 
 JDBC is commonly used in Scala to access databases, however, JDBC uses blocking IO whenever it access the database, blocking the current thread. therefore developers need to be careful when using JDBC in an asynchronous application. 
 
