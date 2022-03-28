@@ -2,7 +2,7 @@ import mill._
 import mill.scalalib._
 import mill.scalalib.publish.{Developer, License, PomSettings, VersionControl}
 
-object `async-db` extends mill.Cross[AsyncDbModule]("2.12.4", "2.13.6")
+object `async-db` extends mill.Cross[AsyncDbModule]("2.12.15", "2.13.8")
 
 class AsyncDbModule(val crossScalaVersion: String) extends CrossScalaModule with PublishModule {
 
