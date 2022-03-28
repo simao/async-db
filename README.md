@@ -1,6 +1,6 @@
 # async-db - non blocking API for jdbc database connections
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/eu.0io/async-db_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/eu.0io/async-db_2.13) [![Continuous integration](https://github.com/simao/async-db/actions/workflows/ci.yml/badge.svg)]()
+[![Maven Central](https://img.shields.io/maven-central/v/eu.0io/async-db_2.13)](https://search.maven.org/artifact/eu.0io/async-db_2.13/0.0.1/jar) [![Continuous integration](https://github.com/simao/async-db/actions/workflows/ci.yml/badge.svg)]()
 
 JDBC is commonly used in Scala to access databases, however, JDBC uses blocking IO whenever it access the database, blocking the current thread. therefore developers need to be careful when using JDBC in an asynchronous application. 
 
@@ -20,7 +20,7 @@ The thread pool is a simpler version of the thread pool used by [slick](https://
 
 ## How to use
 
-Get `<version>` from the maven central badge above.
+Get `<version>` from the maven central bade above.
 
 ### With sbt
 
