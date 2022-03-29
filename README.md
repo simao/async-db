@@ -4,7 +4,7 @@
 
 JDBC is commonly used in Scala to access databases, however, JDBC uses blocking IO whenever it access the database, blocking the current thread. therefore developers need to be careful when using JDBC in an asynchronous application. 
 
-async-db is a thin wrapper around JDBC that includes a preconfigured thread pool and provides a non blocking API, returning a `Future` to connect to a database.
+async-db is a thin wrapper around JDBC that includes a preconfigured thread pool and provides a non blocking API to connect to a database, using`Future`.
 
 The thread pool is a simpler version of the thread pool used by [slick](https://github.com/slick/slick/):
 
@@ -20,7 +20,7 @@ The thread pool is a simpler version of the thread pool used by [slick](https://
 
 ## How to use
 
-Get `<version>` from the maven central bade above.
+Get `<version>` from the maven central badge above.
 
 ### With sbt
 
